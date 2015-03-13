@@ -18,6 +18,7 @@ namespace Asteroids
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        private SpriteFont font;
         private Player player;
 
         public Game1() : base()
@@ -49,6 +50,8 @@ namespace Asteroids
 
             var playerSprite = Content.Load<Texture2D>(@"player");
             Player.Sprite = playerSprite;
+
+            font = Content.Load<SpriteFont>(@"RetroFont");
         }
 
         /// <summary>
