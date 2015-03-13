@@ -18,7 +18,7 @@ namespace Asteroids
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Player player;
+        private Player player;
 
         public Game1() : base()
         {
@@ -79,6 +79,11 @@ namespace Asteroids
                 player.RotateRight();
             }
 
+            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+            {
+                player.Accelerate();
+            }
+
             player.Update();
 
             base.Update(gameTime);
@@ -93,7 +98,9 @@ namespace Asteroids
             GraphicsDevice.Clear(Color.Black);
 
             spriteBatch.Begin();
+
             player.Draw(spriteBatch);
+
             spriteBatch.End();
 
             base.Draw(gameTime);

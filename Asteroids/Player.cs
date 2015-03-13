@@ -10,6 +10,7 @@ namespace Asteroids
     class Player
     {
         const float ROTATE_SPEED = 0.05f;
+        const float ACCELERATION = 0.1f;
 
         public static Texture2D Sprite;
 
@@ -43,6 +44,11 @@ namespace Asteroids
         public void RotateRight()
         {
             Angle += ROTATE_SPEED;
+        }
+
+        public void Accelerate()
+        {
+            Velocity += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
         }
 
         public void Update()
