@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
 using Microsoft.Xna.Framework.GamerServices;
+using Asteroids.View;
 #endregion
 
 namespace Asteroids
@@ -18,13 +19,24 @@ namespace Asteroids
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+
+        public int ScreenWidth { get; private set; }
+        public int ScreenHeight { get; private set; }
+
         private SpriteFont font;
         private Player player;
+
+        private bool DebugOutput = true;
 
         public Game1() : base()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+        }
+
+        private void NewGame()
+        {
+            player = new Player(new Vector2(ScreenWidth / 2, ScreenHeight / 2));
         }
 
         /// <summary>
@@ -35,7 +47,10 @@ namespace Asteroids
         /// </summary>
         protected override void Initialize()
         {
-            player = new Player(new Vector2(30, 30));
+            ScreenWidth = GraphicsDevice.Viewport.Width;
+            ScreenHeight = GraphicsDevice.Viewport.Height;
+
+            NewGame();
 
             base.Initialize();
         }
@@ -49,9 +64,11 @@ namespace Asteroids
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             var playerSprite = Content.Load<Texture2D>(@"player");
-            Player.Sprite = playerSprite;
+            var playerMap = new SpriteMap(playerSprite, 2, 1);
+            Player.Sprites[Player.SPRITE_NORMAL] = playerMap.getSprite(0);
+            Player.Sprites[Player.SPRITE_ACCELERATE] = playerMap.getSprite(1);
 
-            font = Content.Load<SpriteFont>(@"RetroFont");
+            font = Content.Load<SpriteFont>(@"RetroFontSmall");
         }
 
         /// <summary>
@@ -72,19 +89,41 @@ namespace Asteroids
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Left))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Start == ButtonState.Pressed)
+            {
+                NewGame();
+            }
+
+            if (GamePad.GetState(PlayerIndex.One).Buttons.BigButton == ButtonState.Pressed)
+            {
+                DebugOutput = !DebugOutput;
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Left) || GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X < 0)
             {
                 player.RotateLeft();
+            }
+            else if (GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X < 0)
+            {
+                player.RotateRight(GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X * -1.0f);
             }
 
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
                 player.RotateRight();
             }
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Up))
+            else if (GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X > 0)
             {
-                player.Accelerate();
+                player.RotateRight(GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X);
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Up) || GamePad.GetState(PlayerIndex.One).IsButtonDown(Buttons.A))
+            {
+                player.isAccelerating = true;
+            }
+            else if (player.isAccelerating)
+            {
+                player.isAccelerating = false;
             }
 
             player.Update();
@@ -103,10 +142,34 @@ namespace Asteroids
             spriteBatch.Begin();
 
             player.Draw(spriteBatch);
+            PrintDebug(spriteBatch);
 
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        private void PrintDebug(SpriteBatch spriteBatch)
+        {
+            var debug = new List<string>();
+
+            if (DebugOutput)
+            {
+                debug.Add(String.Format(@"X {0:0}", player.Position.X));
+                debug.Add(String.Format(@"Y {0:0}", player.Position.Y));
+                debug.Add(String.Format(@"a {0:0.00}", player.Angle));
+                debug.Add(String.Format(@"pad {0}", GamePad.GetState(PlayerIndex.One).IsConnected));
+                debug.Add(String.Format(@"ls x {0:0.00}", GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X));
+
+                var i = 0;
+                foreach (var s in debug)
+                {
+                    spriteBatch.DrawString(font, s, new Vector2(0, i * 30), Color.White);
+                    i++;
+                }
+
+                debug.Clear();
+            }
         }
     }
 }

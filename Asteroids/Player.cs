@@ -4,15 +4,19 @@ using System.Linq;
 using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Asteroids.View;
 
 namespace Asteroids
 {
     class Player
     {
-        const float ROTATE_SPEED = 0.05f;
-        const float ACCELERATION = 0.1f;
+        public const int SPRITE_NORMAL = 0;
+        public const int SPRITE_ACCELERATE = 1;
 
-        public static Texture2D Sprite;
+        public static Sprite[] Sprites = new Sprite[2];
+
+        const float ROTATE_SPEED = 0.1f;
+        const float ACCELERATION = 0.1f;
 
         public Vector2 Position { get; private set; }
         public Vector2 Velocity { get; private set; }
@@ -22,6 +26,10 @@ namespace Asteroids
             private set { this.angle = value % (2 * MathHelper.Pi); }
         }
         private Vector2 RotationOrigin { get; set; }
+        public Boolean isAccelerating { get; set; }
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         public Player(Vector2 position)
         {
@@ -29,30 +37,31 @@ namespace Asteroids
             Velocity = new Vector2(0.0f, 0.0f);
             Angle = MathHelper.Pi;
             RotationOrigin = new Vector2(10, 15);
+            isAccelerating = false;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Sprite, Position, null, Color.White, Angle, RotationOrigin, 1.0f, SpriteEffects.None, 0f);
+            var spriteIndex = isAccelerating ? SPRITE_ACCELERATE : SPRITE_NORMAL;
+            Sprites[spriteIndex].Draw(spriteBatch, Position, Angle, RotationOrigin);
         }
 
-        public void RotateLeft()
+        public void RotateLeft(float speed = 1.0f)
         {
-            Angle -= ROTATE_SPEED;
+            Angle -= ROTATE_SPEED * speed;
         }
 
-        public void RotateRight()
+        public void RotateRight(float speed = 1.0f)
         {
-            Angle += ROTATE_SPEED;
-        }
-
-        public void Accelerate()
-        {
-            Velocity += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
+            Angle += ROTATE_SPEED * speed;
         }
 
         public void Update()
         {
+            if (isAccelerating)
+            {
+                Velocity += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
+            }
             Position = Position + Velocity;
         }
     }
