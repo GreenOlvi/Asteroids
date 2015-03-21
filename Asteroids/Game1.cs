@@ -15,7 +15,7 @@ namespace Asteroids
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Game
+    public class AsteroidsGame : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -28,7 +28,16 @@ namespace Asteroids
 
         private bool DebugOutput = true;
 
-        public Game1() : base()
+        private static AsteroidsGame instance;
+        public static AsteroidsGame GetInstance()
+        {
+            if (instance == null)
+                instance = new AsteroidsGame();
+
+            return instance;
+        }
+
+        private AsteroidsGame() : base()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";

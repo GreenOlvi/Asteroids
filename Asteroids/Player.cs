@@ -20,11 +20,13 @@ namespace Asteroids
 
         public Vector2 Position { get; private set; }
         public Vector2 Velocity { get; private set; }
+
         private float angle = 0.0f;
         public float Angle {
             get { return angle; }
             private set { this.angle = value % (2 * MathHelper.Pi); }
         }
+
         private Vector2 RotationOrigin { get; set; }
         public Boolean isAccelerating { get; set; }
 
@@ -63,6 +65,25 @@ namespace Asteroids
                 Velocity += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
             }
             Position = Position + Velocity;
+
+            var screenWidth = AsteroidsGame.GetInstance().ScreenWidth;
+            var screenHeight = AsteroidsGame.GetInstance().ScreenHeight;
+            var x = Position.X;
+            var y = Position.Y;
+
+            if (x < 0)
+                x += screenWidth;
+
+            if (x > screenWidth)
+                x %= screenWidth;
+
+            if (y < 0)
+                y += screenHeight;
+
+            if (y > screenHeight)
+                y %= screenHeight;
+
+            Position = new Vector2(x, y);
         }
     }
 }
