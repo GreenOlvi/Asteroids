@@ -69,10 +69,7 @@ namespace Asteroids
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            var playerSprite = Content.Load<Texture2D>(@"player");
-            var playerMap = new SpriteMap(playerSprite, 2, 1);
-            Player.Sprites[Player.SPRITE_NORMAL] = playerMap.getSprite(0);
-            Player.Sprites[Player.SPRITE_ACCELERATE] = playerMap.getSprite(1);
+            player.LoadContent(Content);
 
             font = Content.Load<SpriteFont>(@"RetroFontSmall");
         }
@@ -83,6 +80,7 @@ namespace Asteroids
         /// </summary>
         protected override void UnloadContent()
         {
+            player.UnloadContent();
         }
 
         /// <summary>
@@ -132,7 +130,7 @@ namespace Asteroids
                 player.isAccelerating = false;
             }
 
-            player.Update();
+            player.Update(gameTime);
 
             base.Update(gameTime);
         }

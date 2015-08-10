@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Asteroids.View;
+using Microsoft.Xna.Framework.Content;
 
 namespace Asteroids
 {
-    class Player
+    class Player : Entity
     {
         public const int SPRITE_NORMAL = 0;
         public const int SPRITE_ACCELERATE = 1;
@@ -18,17 +16,16 @@ namespace Asteroids
         const float ROTATE_SPEED = 0.1f;
         const float ACCELERATION = 0.1f;
 
-        public Vector2 Position { get; private set; }
         public Vector2 Velocity { get; private set; }
 
         private float angle = 0.0f;
         public float Angle {
             get { return angle; }
-            private set { this.angle = value % (2 * MathHelper.Pi); }
+            private set { angle = value % (2 * MathHelper.Pi); }
         }
 
         private Vector2 RotationOrigin { get; set; }
-        public Boolean isAccelerating { get; set; }
+        public bool isAccelerating { get; set; }
 
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -42,7 +39,15 @@ namespace Asteroids
             isAccelerating = false;
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public override void LoadContent(ContentManager content)
+        {
+            var playerSprite = content.Load<Texture2D>(@"player");
+            var playerMap = new SpriteMap(playerSprite, 2, 1);
+            Sprites[SPRITE_NORMAL] = playerMap.getSprite(0);
+            Sprites[SPRITE_ACCELERATE] = playerMap.getSprite(1);
+        }
+
+        override public void Draw(SpriteBatch spriteBatch)
         {
             var spriteIndex = isAccelerating ? SPRITE_ACCELERATE : SPRITE_NORMAL;
             Sprites[spriteIndex].Draw(spriteBatch, Position, Angle, RotationOrigin);
@@ -58,7 +63,7 @@ namespace Asteroids
             Angle += ROTATE_SPEED * speed;
         }
 
-        public void Update()
+        override public void Update(GameTime gameTime)
         {
             if (isAccelerating)
             {
@@ -66,8 +71,8 @@ namespace Asteroids
             }
             Position = Position + Velocity;
 
-            var screenWidth = AsteroidsGame.GetInstance().ScreenWidth;
-            var screenHeight = AsteroidsGame.GetInstance().ScreenHeight;
+            var screenWidth = GameInstance.ScreenWidth;
+            var screenHeight = GameInstance.ScreenHeight;
             var x = Position.X;
             var y = Position.Y;
 
