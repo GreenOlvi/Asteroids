@@ -19,30 +19,43 @@ namespace Asteroids
 
         public int ScreenWidth { get; private set; }
         public int ScreenHeight { get; private set; }
+        public Rectangle Screen { get; private set; }
 
         private SpriteFont font;
         private Player player;
+        private List<Entity> entityList;
 
         private bool DebugOutput = true;
 
         private static AsteroidsGame instance;
-        public static AsteroidsGame GetInstance()
-        {
-            if (instance == null)
-                instance = new AsteroidsGame();
-
-            return instance;
+        public static AsteroidsGame Instance {
+            get
+            {
+                if (instance == null)
+                    instance = new AsteroidsGame();
+                return instance;
+            }
+            private set
+            {
+                instance = value;
+            }
         }
+
+        private KeyboardState previousKeyboardState;
+        private GamePadState previousGamePadOneState;
 
         private AsteroidsGame() : base()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            Instance = this;
         }
 
         private void NewGame()
         {
             player = new Player(new Vector2(ScreenWidth / 2, ScreenHeight / 2));
+            entityList = new List<Entity>();
+            entityList.Add(player);
         }
 
         /// <summary>
@@ -55,6 +68,10 @@ namespace Asteroids
         {
             ScreenWidth = GraphicsDevice.Viewport.Width;
             ScreenHeight = GraphicsDevice.Viewport.Height;
+            Screen = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
+
+            previousKeyboardState = Keyboard.GetState();
+            previousGamePadOneState = GamePad.GetState(PlayerIndex.One);
 
             NewGame();
 
@@ -69,7 +86,8 @@ namespace Asteroids
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            player.LoadContent(Content);
+            Player.LoadContent(Content);
+            LaserProjectile.LoadContent(Content);
 
             font = Content.Load<SpriteFont>(@"RetroFontSmall");
         }
@@ -80,7 +98,8 @@ namespace Asteroids
         /// </summary>
         protected override void UnloadContent()
         {
-            player.UnloadContent();
+            Player.UnloadContent();
+            LaserProjectile.UnloadContent();
         }
 
         /// <summary>
@@ -90,38 +109,43 @@ namespace Asteroids
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            var keyboardState = Keyboard.GetState();
+            var gamepadOneState = GamePad.GetState(PlayerIndex.One);
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Start == ButtonState.Pressed)
+            if (gamepadOneState.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
+            {
+                Exit();
+            }
+
+            if (gamepadOneState.Buttons.Start == ButtonState.Pressed)
             {
                 NewGame();
             }
 
-            if (GamePad.GetState(PlayerIndex.One).Buttons.BigButton == ButtonState.Pressed)
+            if (gamepadOneState.Buttons.BigButton == ButtonState.Pressed)
             {
                 DebugOutput = !DebugOutput;
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Left) || GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X < 0)
+            if (keyboardState.IsKeyDown(Keys.Left) || gamepadOneState.ThumbSticks.Left.X < 0)
             {
                 player.RotateLeft();
             }
-            else if (GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X < 0)
+            else if (gamepadOneState.ThumbSticks.Left.X < 0)
             {
-                player.RotateRight(GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X * -1.0f);
+                player.RotateRight(gamepadOneState.ThumbSticks.Left.X * -1.0f);
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
+            if (keyboardState.IsKeyDown(Keys.Right))
             {
                 player.RotateRight();
             }
-            else if (GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X > 0)
+            else if (gamepadOneState.ThumbSticks.Left.X > 0)
             {
-                player.RotateRight(GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X);
+                player.RotateRight(gamepadOneState.ThumbSticks.Left.X);
             }
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Up) || GamePad.GetState(PlayerIndex.One).IsButtonDown(Buttons.A))
+            if (keyboardState.IsKeyDown(Keys.Up) || gamepadOneState.IsButtonDown(Buttons.A))
             {
                 player.isAccelerating = true;
             }
@@ -130,7 +154,17 @@ namespace Asteroids
                 player.isAccelerating = false;
             }
 
-            player.Update(gameTime);
+            if ((keyboardState.IsKeyDown(Keys.Space) && previousKeyboardState.IsKeyUp(Keys.Space))
+                || (gamepadOneState.IsButtonDown(Buttons.RightTrigger) && previousGamePadOneState.IsButtonUp(Buttons.RightTrigger)))
+            {
+                entityList.Add(player.Shoot());
+            }
+
+            previousKeyboardState = keyboardState;
+            previousGamePadOneState = gamepadOneState;
+
+            entityList.ForEach(e => e.Update(gameTime));
+            entityList.RemoveAll(e => e.Destroyed);
 
             base.Update(gameTime);
         }
@@ -145,7 +179,7 @@ namespace Asteroids
 
             spriteBatch.Begin();
 
-            player.Draw(spriteBatch);
+            entityList.ForEach(e => e.Draw(spriteBatch));
             PrintDebug(spriteBatch);
 
             spriteBatch.End();
@@ -162,8 +196,9 @@ namespace Asteroids
                 debug.Add(String.Format(@"X {0:0}", player.Position.X));
                 debug.Add(String.Format(@"Y {0:0}", player.Position.Y));
                 debug.Add(String.Format(@"a {0:0.00}", player.Angle));
-                debug.Add(String.Format(@"pad {0}", GamePad.GetState(PlayerIndex.One).IsConnected));
+                debug.Add(String.Format(@"pad {0}", GamePad.GetCapabilities(PlayerIndex.One).HasLeftVibrationMotor));
                 debug.Add(String.Format(@"ls x {0:0.00}", GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X));
+                debug.Add(String.Format(@"entities {0}", entityList.Count));
 
                 var i = 0;
                 foreach (var s in debug)

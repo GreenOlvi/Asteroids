@@ -8,20 +8,20 @@ namespace Asteroids
 {
     class Player : Entity
     {
-        public const int SPRITE_NORMAL = 0;
-        public const int SPRITE_ACCELERATE = 1;
+        private const int SPRITE_NORMAL = 0;
+        private const int SPRITE_ACCELERATE = 1;
 
-        public static Sprite[] Sprites = new Sprite[2];
+        private static Sprite[] Sprites;
 
-        const float ROTATE_SPEED = 0.1f;
-        const float ACCELERATION = 0.1f;
+        private const float ROTATE_SPEED = 0.1f;
+        private const float ACCELERATION = 0.1f;
 
         public Vector2 Velocity { get; private set; }
 
         private float angle = 0.0f;
         public float Angle {
             get { return angle; }
-            private set { angle = value % (2 * MathHelper.Pi); }
+            private set { angle = MathHelper.WrapAngle(value); }
         }
 
         private Vector2 RotationOrigin { get; set; }
@@ -39,10 +39,11 @@ namespace Asteroids
             isAccelerating = false;
         }
 
-        public override void LoadContent(ContentManager content)
+        public new static void LoadContent(ContentManager content)
         {
             var playerSprite = content.Load<Texture2D>(@"player");
             var playerMap = new SpriteMap(playerSprite, 2, 1);
+            Sprites = new Sprite[2];
             Sprites[SPRITE_NORMAL] = playerMap.getSprite(0);
             Sprites[SPRITE_ACCELERATE] = playerMap.getSprite(1);
         }
@@ -61,6 +62,11 @@ namespace Asteroids
         public void RotateRight(float speed = 1.0f)
         {
             Angle += ROTATE_SPEED * speed;
+        }
+
+        public Entity Shoot()
+        {
+            return new LaserProjectile(Position, Angle);
         }
 
         override public void Update(GameTime gameTime)

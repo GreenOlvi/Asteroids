@@ -82,6 +82,7 @@
   <ItemGroup>
     <Compile Include="AsteroidsGame.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="LaserProjectile.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -96,6 +97,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\Fonts\OFL.txt" />
+    <Content Include="Content\laser.png" />
     <Content Include="Content\player.png" />
     <Content Include="Icon.ico" />
   </ItemGroup>
@@ -122,7 +124,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <Content Include="Content\Fonts\PressStart2P-Regular.ttf" />
-    <None Include="Content\RetroFont.spritefont" />
+    <None Include="Content\RetroFont.spritefont">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Content\RetroFontSmall.spritefont">
       <SubType>Designer</SubType>
     </None>

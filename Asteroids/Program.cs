@@ -18,7 +18,7 @@ namespace Asteroids
         [STAThread]
         static void Main()
         {
-            using (var game = AsteroidsGame.GetInstance())
+            using (var game = AsteroidsGame.Instance)
                 game.Run();
         }
     }

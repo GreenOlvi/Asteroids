@@ -71,6 +71,14 @@ namespace Asteroids.View
             Height = height;
         }
 
+        public Sprite(Texture2D texture)
+        {
+            SpriteIndex = 0;
+            Map = new SpriteMap(texture, 1, 1);
+            Width = Map.SpriteWidth;
+            Height = Map.SpriteHeight;
+        }
+
         public void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
             Map.Draw(spriteBatch, SpriteIndex, position);
