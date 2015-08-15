@@ -3,8 +3,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Asteroids.View;
 using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Input;
 
-namespace Asteroids
+namespace Asteroids.Model
 {
     class Player : Entity
     {
@@ -54,6 +55,11 @@ namespace Asteroids
             Sprites[spriteIndex].Draw(spriteBatch, Position, Angle, RotationOrigin);
         }
 
+        public void Rotate(float speed)
+        {
+            Angle += ROTATE_SPEED * speed;
+        }
+
         public void RotateLeft(float speed = 1.0f)
         {
             Angle -= ROTATE_SPEED * speed;
@@ -64,13 +70,15 @@ namespace Asteroids
             Angle += ROTATE_SPEED * speed;
         }
 
-        public Entity Shoot()
+        public void Shoot()
         {
-            return new LaserProjectile(Position, Angle);
+            entityManager.Add(new LaserProjectile(Position, Angle));
         }
 
         override public void Update(GameTime gameTime)
         {
+            InputUpdate();
+
             if (isAccelerating)
             {
                 Velocity += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
@@ -95,6 +103,25 @@ namespace Asteroids
                 y %= screenHeight;
 
             Position = new Vector2(x, y);
+        }
+
+        private void InputUpdate()
+        {
+            if (inputManager.KeyDown(Keys.Right))
+                RotateRight();
+
+            if (inputManager.KeyDown(Keys.Left))
+                RotateLeft();
+
+            Rotate(inputManager.GamePadLeftThumbStick(PlayerIndex.One).X);
+
+            if (inputManager.KeyDown(Keys.Up) || inputManager.GamePadButtonDown(PlayerIndex.One, Buttons.A))
+                isAccelerating = true;
+            else
+                isAccelerating = false;
+
+            if (inputManager.KeyPressed(Keys.Space) || inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.RightTrigger))
+                Shoot();
         }
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 
-namespace Asteroids
+namespace Asteroids.Model
 {
     class LaserProjectile : Entity
     {

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Asteroids.View;
+using Asteroids.Model;
 #endregion
 
 namespace Asteroids
@@ -21,9 +22,11 @@ namespace Asteroids
         public int ScreenHeight { get; private set; }
         public Rectangle Screen { get; private set; }
 
+        private InputManager inputManager = InputManager.Instance;
+        private EntityManager entityManager = EntityManager.Instance;
+
         private SpriteFont font;
         private Player player;
-        private List<Entity> entityList;
 
         private bool DebugOutput = true;
 
@@ -41,9 +44,6 @@ namespace Asteroids
             }
         }
 
-        private KeyboardState previousKeyboardState;
-        private GamePadState previousGamePadOneState;
-
         private AsteroidsGame() : base()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -54,8 +54,7 @@ namespace Asteroids
         private void NewGame()
         {
             player = new Player(new Vector2(ScreenWidth / 2, ScreenHeight / 2));
-            entityList = new List<Entity>();
-            entityList.Add(player);
+            entityManager.Add(player);
         }
 
         /// <summary>
@@ -69,9 +68,6 @@ namespace Asteroids
             ScreenWidth = GraphicsDevice.Viewport.Width;
             ScreenHeight = GraphicsDevice.Viewport.Height;
             Screen = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
-
-            previousKeyboardState = Keyboard.GetState();
-            previousGamePadOneState = GamePad.GetState(PlayerIndex.One);
 
             NewGame();
 
@@ -109,62 +105,19 @@ namespace Asteroids
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            var keyboardState = Keyboard.GetState();
-            var gamepadOneState = GamePad.GetState(PlayerIndex.One);
+            inputManager.Update();
 
-            if (gamepadOneState.Buttons.Back == ButtonState.Pressed || keyboardState.IsKeyDown(Keys.Escape))
-            {
+            if (inputManager.KeyPressed(Keys.Escape))
                 Exit();
-            }
 
-            if (gamepadOneState.Buttons.Start == ButtonState.Pressed)
-            {
+            if (inputManager.KeyPressed(Keys.Enter) ||
+                inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Start))
                 NewGame();
-            }
 
-            if (gamepadOneState.Buttons.BigButton == ButtonState.Pressed)
-            {
+            if (inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Y))
                 DebugOutput = !DebugOutput;
-            }
 
-            if (keyboardState.IsKeyDown(Keys.Left) || gamepadOneState.ThumbSticks.Left.X < 0)
-            {
-                player.RotateLeft();
-            }
-            else if (gamepadOneState.ThumbSticks.Left.X < 0)
-            {
-                player.RotateRight(gamepadOneState.ThumbSticks.Left.X * -1.0f);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.Right))
-            {
-                player.RotateRight();
-            }
-            else if (gamepadOneState.ThumbSticks.Left.X > 0)
-            {
-                player.RotateRight(gamepadOneState.ThumbSticks.Left.X);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.Up) || gamepadOneState.IsButtonDown(Buttons.A))
-            {
-                player.isAccelerating = true;
-            }
-            else if (player.isAccelerating)
-            {
-                player.isAccelerating = false;
-            }
-
-            if ((keyboardState.IsKeyDown(Keys.Space) && previousKeyboardState.IsKeyUp(Keys.Space))
-                || (gamepadOneState.IsButtonDown(Buttons.RightTrigger) && previousGamePadOneState.IsButtonUp(Buttons.RightTrigger)))
-            {
-                entityList.Add(player.Shoot());
-            }
-
-            previousKeyboardState = keyboardState;
-            previousGamePadOneState = gamepadOneState;
-
-            entityList.ForEach(e => e.Update(gameTime));
-            entityList.RemoveAll(e => e.Destroyed);
+            entityManager.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -179,7 +132,7 @@ namespace Asteroids
 
             spriteBatch.Begin();
 
-            entityList.ForEach(e => e.Draw(spriteBatch));
+            entityManager.Draw(spriteBatch);
             PrintDebug(spriteBatch);
 
             spriteBatch.End();
@@ -198,7 +151,7 @@ namespace Asteroids
                 debug.Add(String.Format(@"a {0:0.00}", player.Angle));
                 debug.Add(String.Format(@"pad {0}", GamePad.GetCapabilities(PlayerIndex.One).HasLeftVibrationMotor));
                 debug.Add(String.Format(@"ls x {0:0.00}", GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X));
-                debug.Add(String.Format(@"entities {0}", entityList.Count));
+                debug.Add(String.Format(@"entities {0}", entityManager.EntityCount));
 
                 var i = 0;
                 foreach (var s in debug)
