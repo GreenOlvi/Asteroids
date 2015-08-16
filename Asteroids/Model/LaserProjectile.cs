@@ -33,7 +33,7 @@ namespace Asteroids.Model
         public new static void LoadContent(ContentManager content)
         {
             sprite = new Sprite(content.Load<Texture2D>("laser"));
-            maxSpriteLength = Math.Sqrt(sprite.Width ^ 2 + sprite.Height ^ 2);
+            maxSpriteLength = Math.Sqrt(Math.Pow(sprite.Width, 2) + Math.Pow(sprite.Height, 2));
         }
 
         public override void Draw(SpriteBatch spriteBatch)

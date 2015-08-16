@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Asteroids.View;
 using Asteroids.Model;
 #endregion
 
@@ -81,6 +80,8 @@ namespace Asteroids
         protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            View.Primitives.graphicsDevice = GraphicsDevice;
 
             Player.LoadContent(Content);
             LaserProjectile.LoadContent(Content);
