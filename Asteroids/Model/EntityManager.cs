@@ -34,6 +34,11 @@ namespace Asteroids.Model
             entities.Add(entity);
         }
 
+        public void Clear()
+        {
+            entities.Clear();
+        }
+
         public void Update(GameTime gameTime)
         {
             entities.ForEach(e => e.Update(gameTime));

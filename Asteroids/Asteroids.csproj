@@ -81,6 +81,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AsteroidsGame.cs" />
+    <Compile Include="Model\Asteroid.cs" />
     <Compile Include="Model\Entity.cs" />
     <Compile Include="InputManager.cs" />
     <Compile Include="Model\EntityManager.cs" />

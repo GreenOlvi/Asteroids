@@ -47,13 +47,16 @@ namespace Asteroids
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            Instance = this;
         }
 
         private void NewGame()
         {
+            entityManager.Clear();
+
             player = new Player(new Vector2(ScreenWidth / 2, ScreenHeight / 2));
             entityManager.Add(player);
+
+            entityManager.Add(new Asteroid(new Vector2((ScreenWidth / 2) + 200, ScreenHeight / 2)));
         }
 
         /// <summary>
@@ -85,6 +88,7 @@ namespace Asteroids
 
             Player.LoadContent(Content);
             LaserProjectile.LoadContent(Content);
+            Asteroid.LoadContent(Content);
 
             font = Content.Load<SpriteFont>(@"RetroFontSmall");
         }
@@ -97,6 +101,7 @@ namespace Asteroids
         {
             Player.UnloadContent();
             LaserProjectile.UnloadContent();
+            Asteroid.UnloadContent();
         }
 
         /// <summary>
