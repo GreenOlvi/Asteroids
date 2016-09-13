@@ -6,21 +6,24 @@ using System;
 
 namespace Asteroids.Model
 {
-    class LaserProjectile : Entity
+    class LaserProjectile : IEntity
     {
-        private static Sprite sprite;
-        public static double maxSpriteLength;
+        private static Sprite _sprite;
+        public static double MaxSpriteLength;
 
         private const float VELOCITY = 10.0f;
     
-        private float angle = 0.0f;
+        private float _angle = 0.0f;
         public float Angle {
-            get { return angle; }
-            private set { angle = MathHelper.WrapAngle(value); }
+            get { return _angle; }
+            private set { _angle = MathHelper.WrapAngle(value); }
         }
 
+        public Vector2 Position { get; private set; }
         public Vector2 Velocity { get; private set; }
         private Vector2 rotationOrigin = new Vector2(10, 10);
+
+        public bool Destroyed { get; private set; }
 
         public LaserProjectile(Vector2 position, float angle)
         {
@@ -30,22 +33,23 @@ namespace Asteroids.Model
                 Convert.ToSingle(Math.Sin(Angle) * VELOCITY),
                 Convert.ToSingle(-Math.Cos(Angle) * VELOCITY));
         }
-        public new static void LoadContent(ContentManager content)
+
+        public static void LoadContent(ContentManager content)
         {
-            sprite = new Sprite(content.Load<Texture2D>("laser"));
-            maxSpriteLength = Math.Sqrt(Math.Pow(sprite.Width, 2) + Math.Pow(sprite.Height, 2));
+            _sprite = new Sprite(content.Load<Texture2D>("laser"));
+            MaxSpriteLength = Math.Sqrt(Math.Pow(_sprite.Width, 2) + Math.Pow(_sprite.Height, 2));
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch)
         {
-            sprite.Draw(spriteBatch, Position, Angle, rotationOrigin);
+            _sprite.Draw(spriteBatch, Position, Angle, rotationOrigin);
         }
 
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             Position += Velocity;
 
-            if (!GameInstance.Screen.Contains(Position))
+            if (!AsteroidsGame.Instance.Screen.Contains(Position))
             {
                 Destroyed = true;
             }

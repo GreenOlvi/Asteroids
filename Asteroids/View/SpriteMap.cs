@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Asteroids.View
 {
@@ -18,39 +15,41 @@ namespace Asteroids.View
 
         public SpriteMap(Texture2D texture, int columns, int rows)
         {
-            this.Texture = texture;
-            this.Columns = columns;
-            this.Rows = rows;
+            Texture = texture;
+            Columns = columns;
+            Rows = rows;
 
-            this.SpriteWidth = texture.Width / columns;
-            this.SpriteHeight = texture.Height / rows;
+            SpriteWidth = texture.Width / columns;
+            SpriteHeight = texture.Height / rows;
 
             var sprites = new List<Rectangle>(Columns * Rows);
-            for (int row = 0; row < Rows; row++)
+            for (var row = 0; row < Rows; row++)
             {
-                for (int col = 0; col < Columns; col++)
+                for (var col = 0; col < Columns; col++)
                 {
                     var rectangle = new Rectangle(SpriteWidth * col, SpriteHeight * row, SpriteWidth, SpriteHeight);
                     sprites.Add(rectangle);
                 }
             }
 
-            this.Sprites = sprites;
+            Sprites = sprites;
         }
 
-        public void Draw(SpriteBatch spriteBatch, int sprite, Vector2 position) {
+        public void Draw(SpriteBatch spriteBatch, int sprite, Vector2 position)
+        {
             var sourceRectangle = Sprites[sprite];
             var destinationRectangle = new Rectangle((int)position.X, (int)position.Y, SpriteWidth, SpriteHeight);
             spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White);
         }
 
-        public void Draw(SpriteBatch spriteBatch, int sprite, Vector2 position, float angle, Vector2 origin) {
+        public void Draw(SpriteBatch spriteBatch, int sprite, Vector2 position, float angle, Vector2 origin)
+        {
             var sourceRectangle = Sprites[sprite];
             var destinationRectangle = new Rectangle((int)position.X, (int)position.Y, SpriteWidth, SpriteHeight);
             spriteBatch.Draw(Texture, destinationRectangle, sourceRectangle, Color.White, angle, origin, SpriteEffects.None, 0f);
         }
 
-        public Sprite getSprite(int index)
+        public Sprite GetSprite(int index)
         {
             return new Sprite(index, this, SpriteWidth, SpriteHeight);
         }
@@ -58,36 +57,35 @@ namespace Asteroids.View
 
     class Sprite
     {
-        private int SpriteIndex;
-        private SpriteMap Map;
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        private readonly int _spriteIndex;
+        private readonly SpriteMap _map;
+        public int Width { get; }
+        public int Height { get; }
 
         public Sprite(int spriteIndex, SpriteMap map, int width, int height)
         {
-            SpriteIndex = spriteIndex;
-            Map = map;
+            _spriteIndex = spriteIndex;
+            _map = map;
             Width = width;
             Height = height;
         }
 
         public Sprite(Texture2D texture)
         {
-            SpriteIndex = 0;
-            Map = new SpriteMap(texture, 1, 1);
-            Width = Map.SpriteWidth;
-            Height = Map.SpriteHeight;
+            _spriteIndex = 0;
+            _map = new SpriteMap(texture, 1, 1);
+            Width = _map.SpriteWidth;
+            Height = _map.SpriteHeight;
         }
 
         public void Draw(SpriteBatch spriteBatch, Vector2 position)
         {
-            Map.Draw(spriteBatch, SpriteIndex, position);
+            _map.Draw(spriteBatch, _spriteIndex, position);
         }
-
 
         public void Draw(SpriteBatch spriteBatch, Vector2 position, float angle, Vector2 origin)
         {
-            Map.Draw(spriteBatch, SpriteIndex, position, angle, origin);
+            _map.Draw(spriteBatch, _spriteIndex, position, angle, origin);
         }
     }
 }

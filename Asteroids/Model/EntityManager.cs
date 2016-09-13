@@ -6,32 +6,31 @@ namespace Asteroids.Model
 {
     class EntityManager
     {
-        private static EntityManager instance;
+        private static EntityManager _instance;
         public static EntityManager Instance
         {
             get
             {
-                if (instance == null)
-                    instance = new EntityManager();
+                if (_instance == null)
+                    _instance = new EntityManager();
 
-                return instance;
+                return _instance;
             }
             set
             {
-                instance = value;
+                _instance = value;
             }
         }
 
-        private List<Entity> entities = new List<Entity>();
-        public int EntityCount {
-            get { return entities.Count; }
-        }
+        private List<IEntity> entities = new List<IEntity>();
+        private List<IEntity> toAdd = new List<IEntity>(); 
+        public int EntityCount => entities.Count;
 
         private EntityManager() { }
 
-        public void Add(Entity entity)
+        public void Add(IEntity entity)
         {
-            entities.Add(entity);
+            toAdd.Add(entity);
         }
 
         public void Clear()
@@ -41,7 +40,12 @@ namespace Asteroids.Model
 
         public void Update(GameTime gameTime)
         {
-            entities.ForEach(e => e.Update(gameTime));
+            entities.AddRange(toAdd);
+            toAdd.Clear();
+            foreach (var entity in entities)
+            {
+                entity.Update(gameTime);
+            }
             entities.RemoveAll(e => e.Destroyed);
         }
 

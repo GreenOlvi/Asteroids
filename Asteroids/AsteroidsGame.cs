@@ -21,8 +21,8 @@ namespace Asteroids
         public int ScreenHeight { get; private set; }
         public Rectangle Screen { get; private set; }
 
-        private InputManager inputManager = InputManager.Instance;
-        private EntityManager entityManager = EntityManager.Instance;
+        private readonly InputManager inputManager = InputManager.Instance;
+        private readonly EntityManager entityManager = EntityManager.Instance;
 
         private SpriteFont font;
         private Player player;
@@ -37,13 +37,9 @@ namespace Asteroids
                     instance = new AsteroidsGame();
                 return instance;
             }
-            private set
-            {
-                instance = value;
-            }
         }
 
-        private AsteroidsGame() : base()
+        private AsteroidsGame()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -84,11 +80,10 @@ namespace Asteroids
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            View.Primitives.graphicsDevice = GraphicsDevice;
+            View.Primitives.Device = GraphicsDevice;
 
             Player.LoadContent(Content);
             LaserProjectile.LoadContent(Content);
-            Asteroid.LoadContent(Content);
 
             font = Content.Load<SpriteFont>(@"RetroFontSmall");
         }
@@ -99,9 +94,6 @@ namespace Asteroids
         /// </summary>
         protected override void UnloadContent()
         {
-            Player.UnloadContent();
-            LaserProjectile.UnloadContent();
-            Asteroid.UnloadContent();
         }
 
         /// <summary>

@@ -6,9 +6,9 @@ using System.Linq;
 
 namespace Asteroids.View
 {
-    class Primitives
+    public static class Primitives
     {
-        public static GraphicsDevice graphicsDevice;
+        public static GraphicsDevice Device;
 
         private static Texture2D pixel;
         private static Texture2D Pixel {
@@ -16,7 +16,7 @@ namespace Asteroids.View
             {
                 if (pixel == null)
                 {
-                    pixel = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
+                    pixel = new Texture2D(Device, 1, 1, false, SurfaceFormat.Color);
                     pixel.SetData(new[] { Color.White  });
                 }
 

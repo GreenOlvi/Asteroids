@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Asteroids.Model
 {
-    class Player : Entity
+    class Player : IEntity
     {
         private const int SPRITE_NORMAL = 0;
         private const int SPRITE_ACCELERATE = 1;
@@ -17,16 +17,18 @@ namespace Asteroids.Model
         private const float ROTATE_SPEED = 0.1f;
         private const float ACCELERATION = 0.1f;
 
+        public Vector2 Position { get; private set; }
         public Vector2 Velocity { get; private set; }
+        public bool Destroyed { get; private set; }
 
-        private float angle = 0.0f;
+        private float _angle = 0.0f;
         public float Angle {
-            get { return angle; }
-            private set { angle = MathHelper.WrapAngle(value); }
+            get { return _angle; }
+            private set { _angle = MathHelper.WrapAngle(value); }
         }
 
         private Vector2 RotationOrigin { get; set; }
-        public bool isAccelerating { get; set; }
+        public bool IsAccelerating { get; set; }
 
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -37,21 +39,21 @@ namespace Asteroids.Model
             Velocity = new Vector2(0.0f, 0.0f);
             Angle = MathHelper.Pi;
             RotationOrigin = new Vector2(10, 15);
-            isAccelerating = false;
+            IsAccelerating = false;
         }
 
-        public new static void LoadContent(ContentManager content)
+        public static void LoadContent(ContentManager content)
         {
             var playerSprite = content.Load<Texture2D>(@"player");
             var playerMap = new SpriteMap(playerSprite, 2, 1);
             Sprites = new Sprite[2];
-            Sprites[SPRITE_NORMAL] = playerMap.getSprite(0);
-            Sprites[SPRITE_ACCELERATE] = playerMap.getSprite(1);
+            Sprites[SPRITE_NORMAL] = playerMap.GetSprite(0);
+            Sprites[SPRITE_ACCELERATE] = playerMap.GetSprite(1);
         }
 
-        override public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch)
         {
-            var spriteIndex = isAccelerating ? SPRITE_ACCELERATE : SPRITE_NORMAL;
+            var spriteIndex = IsAccelerating ? SPRITE_ACCELERATE : SPRITE_NORMAL;
             Sprites[spriteIndex].Draw(spriteBatch, Position, Angle, RotationOrigin);
         }
 
@@ -72,21 +74,21 @@ namespace Asteroids.Model
 
         public void Shoot()
         {
-            entityManager.Add(new LaserProjectile(Position, Angle));
+            EntityManager.Instance.Add(new LaserProjectile(Position, Angle));
         }
 
-        override public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             InputUpdate();
 
-            if (isAccelerating)
+            if (IsAccelerating)
             {
                 Velocity += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
             }
             Position = Position + Velocity;
 
-            var screenWidth = GameInstance.ScreenWidth;
-            var screenHeight = GameInstance.ScreenHeight;
+            var screenWidth = AsteroidsGame.Instance.ScreenWidth;
+            var screenHeight = AsteroidsGame.Instance.ScreenHeight;
             var x = Position.X;
             var y = Position.Y;
 
@@ -107,20 +109,20 @@ namespace Asteroids.Model
 
         private void InputUpdate()
         {
-            if (inputManager.KeyDown(Keys.Right))
+            if (InputManager.Instance.KeyDown(Keys.Right))
                 RotateRight();
 
-            if (inputManager.KeyDown(Keys.Left))
+            if (InputManager.Instance.KeyDown(Keys.Left))
                 RotateLeft();
 
-            Rotate(inputManager.GamePadLeftThumbStick(PlayerIndex.One).X);
+            Rotate(InputManager.Instance.GamePadLeftThumbStick(PlayerIndex.One).X);
 
-            if (inputManager.KeyDown(Keys.Up) || inputManager.GamePadButtonDown(PlayerIndex.One, Buttons.A))
-                isAccelerating = true;
+            if (InputManager.Instance.KeyDown(Keys.Up) || InputManager.Instance.GamePadButtonDown(PlayerIndex.One, Buttons.A))
+                IsAccelerating = true;
             else
-                isAccelerating = false;
+                IsAccelerating = false;
 
-            if (inputManager.KeyPressed(Keys.Space) || inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.RightTrigger))
+            if (InputManager.Instance.KeyPressed(Keys.Space) || InputManager.Instance.GamePadButtonPressed(PlayerIndex.One, Buttons.RightTrigger))
                 Shoot();
         }
     }

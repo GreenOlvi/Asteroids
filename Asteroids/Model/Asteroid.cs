@@ -7,12 +7,12 @@ using System.Linq;
 
 namespace Asteroids.Model
 {
-    class Asteroid : Entity
+    class Asteroid : IEntity
     {
-        private static readonly int N_MIN = 10;
-        private static readonly int N_MAX = 20;
-        private static readonly double R_MIN = 0.3;
-        private static readonly double R_MAX = 1.0;
+        private const int N_MIN = 10;
+        private const int N_MAX = 20;
+        private const double R_MIN = 0.3;
+        private const double R_MAX = 1.0;
 
         private Random rng;
         public float Scale { get; private set; }
@@ -23,7 +23,9 @@ namespace Asteroids.Model
             private set { angle = MathHelper.WrapAngle(value); }
         }
 
-        public List<Vector2> Points { get; private set; }
+        private List<Vector2> Points;
+        public Vector2 Position { get; private set; }
+        public bool Destroyed { get; private set; }
 
         public Asteroid(Vector2 position)
         {
@@ -61,12 +63,12 @@ namespace Asteroids.Model
             return add;
         }
 
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
             Angle += 0.01f;
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch)
         {
             var dist = new Vector2(Scale, Scale);
 
