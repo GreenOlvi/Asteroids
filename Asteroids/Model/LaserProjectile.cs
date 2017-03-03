@@ -6,10 +6,9 @@ using System;
 
 namespace Asteroids.Model
 {
-    class LaserProjectile : IEntity
+    public class LaserProjectile : IEntity
     {
-        private static Sprite _sprite;
-        public static double MaxSpriteLength;
+        public EntityType Type => EntityType.LaserProjectile;
 
         private const float VELOCITY = 10.0f;
     
@@ -21,7 +20,6 @@ namespace Asteroids.Model
 
         public Vector2 Position { get; private set; }
         public Vector2 Velocity { get; private set; }
-        private Vector2 rotationOrigin = new Vector2(10, 10);
 
         public bool Destroyed { get; private set; }
 
@@ -32,17 +30,6 @@ namespace Asteroids.Model
             Velocity = new Vector2(
                 Convert.ToSingle(Math.Sin(Angle) * VELOCITY),
                 Convert.ToSingle(-Math.Cos(Angle) * VELOCITY));
-        }
-
-        public static void LoadContent(ContentManager content)
-        {
-            _sprite = new Sprite(content.Load<Texture2D>("laser"));
-            MaxSpriteLength = Math.Sqrt(Math.Pow(_sprite.Width, 2) + Math.Pow(_sprite.Height, 2));
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            _sprite.Draw(spriteBatch, Position, Angle, rotationOrigin);
         }
 
         public void Update(GameTime gameTime)

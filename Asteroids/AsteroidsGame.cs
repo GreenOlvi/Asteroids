@@ -1,11 +1,10 @@
-﻿#region Using Statements
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Asteroids.Model;
-#endregion
+using Asteroids.View;
 
 namespace Asteroids
 {
@@ -14,45 +13,48 @@ namespace Asteroids
     /// </summary>
     public class AsteroidsGame : Game
     {
-        GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        GraphicsDeviceManager _graphics;
+        SpriteBatch _spriteBatch;
 
         public int ScreenWidth { get; private set; }
         public int ScreenHeight { get; private set; }
         public Rectangle Screen { get; private set; }
 
-        private readonly InputManager inputManager = InputManager.Instance;
-        private readonly EntityManager entityManager = EntityManager.Instance;
+        private readonly InputManager _inputManager = InputManager.Instance;
+        private readonly EntityManager _entityManager = new EntityManager();
+        private readonly EntityDrawerManager _entityDrawerManager;
 
-        private SpriteFont font;
-        private Player player;
+        private SpriteFont _font;
+        private Player _player;
 
-        private bool DebugOutput = true;
+        public bool DebugOutput { get; set; } = true;
 
-        private static AsteroidsGame instance;
+        private static AsteroidsGame _instance;
         public static AsteroidsGame Instance {
             get
             {
-                if (instance == null)
-                    instance = new AsteroidsGame();
-                return instance;
+                if (_instance == null)
+                    _instance = new AsteroidsGame();
+                return _instance;
             }
         }
 
         private AsteroidsGame()
         {
-            graphics = new GraphicsDeviceManager(this);
+            _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
+            _entityDrawerManager = new EntityDrawerManager(new PlayerDrawer(), new AsteroidDrawer(), new LaserProjectileDrawer());
         }
 
         private void NewGame()
         {
-            entityManager.Clear();
+            _entityManager.Clear();
 
-            player = new Player(new Vector2(ScreenWidth / 2, ScreenHeight / 2));
-            entityManager.Add(player);
+            _player = new Player(new Vector2(ScreenWidth / 2, ScreenHeight / 2));
+            AddEntity(_player);
 
-            entityManager.Add(new Asteroid(new Vector2((ScreenWidth / 2) + 200, ScreenHeight / 2)));
+            _entityManager.Add(Asteroid.GenerateRandom(new Vector2((ScreenWidth / 2) + 200, ScreenHeight / 2)));
         }
 
         /// <summary>
@@ -78,14 +80,13 @@ namespace Asteroids
         /// </summary>
         protected override void LoadContent()
         {
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             View.Primitives.Device = GraphicsDevice;
 
-            Player.LoadContent(Content);
-            LaserProjectile.LoadContent(Content);
+            _entityDrawerManager.LoadContent(Content);
 
-            font = Content.Load<SpriteFont>(@"RetroFontSmall");
+            _font = Content.Load<SpriteFont>(@"RetroFontSmall");
         }
 
         /// <summary>
@@ -103,19 +104,19 @@ namespace Asteroids
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            inputManager.Update();
+            _inputManager.Update();
 
-            if (inputManager.KeyPressed(Keys.Escape))
+            if (_inputManager.KeyPressed(Keys.Escape))
                 Exit();
 
-            if (inputManager.KeyPressed(Keys.Enter) ||
-                inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Start))
+            if (_inputManager.KeyPressed(Keys.Enter) ||
+                _inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Start))
                 NewGame();
 
-            if (inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Y))
+            if (_inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Y))
                 DebugOutput = !DebugOutput;
 
-            entityManager.Update(gameTime);
+            _entityManager.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -128,12 +129,12 @@ namespace Asteroids
         {
             GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Begin();
+            _spriteBatch.Begin();
 
-            entityManager.Draw(spriteBatch);
-            PrintDebug(spriteBatch);
+            _entityDrawerManager.DrawEntities(_spriteBatch, _entityManager.Entities);
+            PrintDebug(_spriteBatch);
 
-            spriteBatch.End();
+            _spriteBatch.End();
 
             base.Draw(gameTime);
         }
@@ -144,22 +145,27 @@ namespace Asteroids
 
             if (DebugOutput)
             {
-                debug.Add(String.Format(@"X {0:0}", player.Position.X));
-                debug.Add(String.Format(@"Y {0:0}", player.Position.Y));
-                debug.Add(String.Format(@"a {0:0.00}", player.Angle));
+                debug.Add(String.Format(@"X {0:0}", _player.Position.X));
+                debug.Add(String.Format(@"Y {0:0}", _player.Position.Y));
+                debug.Add(String.Format(@"a {0:0.00}", _player.Angle));
                 debug.Add(String.Format(@"pad {0}", GamePad.GetCapabilities(PlayerIndex.One).HasLeftVibrationMotor));
                 debug.Add(String.Format(@"ls x {0:0.00}", GamePad.GetState(PlayerIndex.One).ThumbSticks.Left.X));
-                debug.Add(String.Format(@"entities {0}", entityManager.EntityCount));
+                debug.Add(String.Format(@"entities {0}", _entityManager.EntityCount));
 
                 var i = 0;
                 foreach (var s in debug)
                 {
-                    spriteBatch.DrawString(font, s, new Vector2(0, i * 30), Color.White);
+                    spriteBatch.DrawString(_font, s, new Vector2(0, i * 30), Color.White);
                     i++;
                 }
 
                 debug.Clear();
             }
+        }
+
+        public void AddEntity(IEntity entity)
+        {
+            _entityManager.Add(entity);
         }
     }
 }

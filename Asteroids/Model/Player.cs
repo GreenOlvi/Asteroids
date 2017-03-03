@@ -1,18 +1,13 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Asteroids.View;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Input;
 
 namespace Asteroids.Model
 {
-    class Player : IEntity
+    public class Player : IEntity
     {
-        private const int SPRITE_NORMAL = 0;
-        private const int SPRITE_ACCELERATE = 1;
-
-        private static Sprite[] Sprites;
+        public EntityType Type => EntityType.Player;
 
         private const float ROTATE_SPEED = 0.1f;
         private const float ACCELERATION = 0.1f;
@@ -27,8 +22,7 @@ namespace Asteroids.Model
             private set { _angle = MathHelper.WrapAngle(value); }
         }
 
-        private Vector2 RotationOrigin { get; set; }
-        public bool IsAccelerating { get; set; }
+        public bool IsAccelerating { get; private set; }
 
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -38,23 +32,7 @@ namespace Asteroids.Model
             Position = position;
             Velocity = new Vector2(0.0f, 0.0f);
             Angle = MathHelper.Pi;
-            RotationOrigin = new Vector2(10, 15);
             IsAccelerating = false;
-        }
-
-        public static void LoadContent(ContentManager content)
-        {
-            var playerSprite = content.Load<Texture2D>(@"player");
-            var playerMap = new SpriteMap(playerSprite, 2, 1);
-            Sprites = new Sprite[2];
-            Sprites[SPRITE_NORMAL] = playerMap.GetSprite(0);
-            Sprites[SPRITE_ACCELERATE] = playerMap.GetSprite(1);
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            var spriteIndex = IsAccelerating ? SPRITE_ACCELERATE : SPRITE_NORMAL;
-            Sprites[spriteIndex].Draw(spriteBatch, Position, Angle, RotationOrigin);
         }
 
         public void Rotate(float speed)
@@ -74,7 +52,7 @@ namespace Asteroids.Model
 
         public void Shoot()
         {
-            EntityManager.Instance.Add(new LaserProjectile(Position, Angle));
+            AsteroidsGame.Instance.AddEntity(new LaserProjectile(Position, Angle));
         }
 
         public void Update(GameTime gameTime)

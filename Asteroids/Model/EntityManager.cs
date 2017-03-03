@@ -1,57 +1,35 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Asteroids.Model
 {
-    class EntityManager
+    public class EntityManager
     {
-        private static EntityManager _instance;
-        public static EntityManager Instance
-        {
-            get
-            {
-                if (_instance == null)
-                    _instance = new EntityManager();
-
-                return _instance;
-            }
-            set
-            {
-                _instance = value;
-            }
-        }
-
-        private List<IEntity> entities = new List<IEntity>();
-        private List<IEntity> toAdd = new List<IEntity>(); 
-        public int EntityCount => entities.Count;
-
-        private EntityManager() { }
+        public List<IEntity> Entities { get; } = new List<IEntity>();
+        private readonly List<IEntity> _toAdd = new List<IEntity>(); 
+        public int EntityCount => Entities.Count;
 
         public void Add(IEntity entity)
         {
-            toAdd.Add(entity);
+            _toAdd.Add(entity);
         }
 
         public void Clear()
         {
-            entities.Clear();
+            Entities.Clear();
         }
 
         public void Update(GameTime gameTime)
         {
-            entities.AddRange(toAdd);
-            toAdd.Clear();
-            foreach (var entity in entities)
+            Entities.AddRange(_toAdd);
+            _toAdd.Clear();
+
+            foreach (var entity in Entities)
             {
                 entity.Update(gameTime);
             }
-            entities.RemoveAll(e => e.Destroyed);
-        }
 
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            entities.ForEach(e => e.Draw(spriteBatch));
+            Entities.RemoveAll(e => e.Destroyed);
         }
     }
 }

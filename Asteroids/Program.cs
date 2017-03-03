@@ -1,8 +1,4 @@
-﻿#region Using Statements
-using System;
-using System.Collections.Generic;
-using System.Linq;
-#endregion
+﻿using System;
 
 namespace Asteroids
 {
@@ -19,7 +15,9 @@ namespace Asteroids
         static void Main()
         {
             using (var game = AsteroidsGame.Instance)
+            {
                 game.Run();
+            }
         }
     }
 #endif
