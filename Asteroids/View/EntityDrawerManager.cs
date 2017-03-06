@@ -7,11 +7,11 @@ namespace Asteroids.View
 {
     public class EntityDrawerManager
     {
-        private readonly PlayerDrawer _playerDrawer;
-        private readonly AsteroidDrawer _asteroidDrawer;
-        private readonly LaserProjectileDrawer _laserProjectileDrawer;
+        private readonly IEntityDrawer<Player> _playerDrawer;
+        private readonly IEntityDrawer<Asteroid> _asteroidDrawer;
+        private readonly IEntityDrawer<LaserProjectile> _laserProjectileDrawer;
 
-        public EntityDrawerManager(PlayerDrawer playerDrawer, AsteroidDrawer asteroidDrawer, LaserProjectileDrawer laserProjectileDrawer)
+        public EntityDrawerManager(IEntityDrawer<Player> playerDrawer, IEntityDrawer<Asteroid> asteroidDrawer, IEntityDrawer<LaserProjectile> laserProjectileDrawer)
         {
             _playerDrawer = playerDrawer;
             _asteroidDrawer = asteroidDrawer;
@@ -37,6 +37,9 @@ namespace Asteroids.View
                     break;
                 case EntityType.LaserProjectile:
                     _laserProjectileDrawer.Draw(spriteBatch, entity);
+                    break;
+                case EntityType.Singularity:
+                    Primitives.PutPixel(spriteBatch, entity.Position);
                     break;
             }
         }

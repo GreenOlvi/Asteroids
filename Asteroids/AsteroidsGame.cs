@@ -23,6 +23,7 @@ namespace Asteroids
         private readonly InputManager _inputManager = InputManager.Instance;
         private readonly EntityManager _entityManager = new EntityManager();
         private readonly EntityDrawerManager _entityDrawerManager;
+        public CompoundGravity Gravity { get; }
 
         private SpriteFont _font;
         private Player _player;
@@ -45,6 +46,7 @@ namespace Asteroids
             Content.RootDirectory = "Content";
 
             _entityDrawerManager = new EntityDrawerManager(new PlayerDrawer(), new AsteroidDrawer(), new LaserProjectileDrawer());
+            Gravity = new CompoundGravity();
         }
 
         private void NewGame()
@@ -54,7 +56,12 @@ namespace Asteroids
             _player = new Player(new Vector2(ScreenWidth / 2, ScreenHeight / 2));
             AddEntity(_player);
 
-            _entityManager.Add(Asteroid.GenerateRandom(new Vector2((ScreenWidth / 2) + 200, ScreenHeight / 2)));
+            var asteroid = Asteroid.GenerateRandom(new Vector2((ScreenWidth/2) + 200, ScreenHeight/2));
+            _entityManager.Add(asteroid);
+
+            var singularity = new Singularity(asteroid.Position, 1000);
+            AddEntity(singularity);
+            Gravity.AddSource(singularity);
         }
 
         /// <summary>

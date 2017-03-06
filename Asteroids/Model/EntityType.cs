@@ -6,5 +6,6 @@
         Player,
         Asteroid,
         LaserProjectile,
+        Singularity,
     }
 }

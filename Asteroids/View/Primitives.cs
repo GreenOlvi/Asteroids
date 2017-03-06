@@ -10,23 +10,16 @@ namespace Asteroids.View
     {
         public static GraphicsDevice Device;
 
-        private static Texture2D pixel;
-        private static Texture2D Pixel {
-            get
-            {
-                if (pixel == null)
-                {
-                    pixel = new Texture2D(Device, 1, 1, false, SurfaceFormat.Color);
-                    pixel.SetData(new[] { Color.White  });
-                }
-
-                return pixel;
-            }
-        }
+        private static readonly Lazy<Texture2D> Pixel = new Lazy<Texture2D>(() =>
+        {
+            var p = new Texture2D(Device, 1, 1, false, SurfaceFormat.Color);
+            p.SetData(new[] {Color.White});
+            return p;
+        });
 
         public static void PutPixel(SpriteBatch spriteBatch, Vector2 position)
         {
-            spriteBatch.Draw(Pixel, position, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0);
+            spriteBatch.Draw(Pixel.Value, position, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0);
         }
 
         public static void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end)
@@ -34,13 +27,25 @@ namespace Asteroids.View
             var dx = end.X - start.X;
             var dy = end.Y - start.Y;
             var angle = (float) Math.Atan2(dy, dx);
-            var length = (float) Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
+            var length = Vector2.Distance(start, end);
             DrawLine(spriteBatch, start, length, angle);
         }
 
         public static void DrawLine(SpriteBatch spriteBatch, Vector2 position, float length, float angle)
         {
-            spriteBatch.Draw(Pixel, position, null, Color.White, angle, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
+            spriteBatch.Draw(Pixel.Value, position, null, Color.White, angle, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
+        }
+
+        public static void DrawArrow(SpriteBatch spriteBatch, Vector2 start, Vector2 end)
+        {
+            var dx = start.X - end.X;
+            var dy = start.Y - end.Y;
+            var angle = (float) Math.Atan2(dy, dx);
+            var length = Vector2.Distance(start, end);
+            var ang = (float)Math.PI/6;
+            DrawLine(spriteBatch, start, end);
+            DrawLine(spriteBatch, end, length * 0.3f, angle - ang);
+            DrawLine(spriteBatch, end, length * 0.3f, angle + ang);
         }
 
         public static void DrawRectangle(SpriteBatch spriteBatch, Vector2 start, Vector2 end)

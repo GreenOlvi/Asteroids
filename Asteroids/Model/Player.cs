@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace Asteroids.Model
@@ -23,9 +22,6 @@ namespace Asteroids.Model
         }
 
         public bool IsAccelerating { get; private set; }
-
-        public int Width { get; private set; }
-        public int Height { get; private set; }
 
         public Player(Vector2 position)
         {
@@ -59,11 +55,18 @@ namespace Asteroids.Model
         {
             InputUpdate();
 
+            var acceleration = Vector2.Zero;
+
             if (IsAccelerating)
             {
-                Velocity += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
+                acceleration += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
             }
-            Position = Position + Velocity;
+
+            acceleration += AsteroidsGame.Instance.Gravity.ApplyGravity(this);
+
+            Velocity += acceleration;
+
+            Position = Vector2.Add(Position, Velocity);
 
             var screenWidth = AsteroidsGame.Instance.ScreenWidth;
             var screenHeight = AsteroidsGame.Instance.ScreenHeight;
