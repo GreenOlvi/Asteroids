@@ -48,7 +48,8 @@ namespace Asteroids.Model
 
         public void Shoot()
         {
-            AsteroidsGame.Instance.AddEntity(new LaserProjectile(Position, Angle));
+            //AsteroidsGame.Instance.AddEntity(new LaserProjectile(Position, Angle));
+            AsteroidsGame.Instance.AddEntity(new KineticProjectile(Position, Angle));
         }
 
         public void Update(GameTime gameTime)

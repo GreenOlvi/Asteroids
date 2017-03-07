@@ -88,14 +88,17 @@
     <Compile Include="InputManager.cs" />
     <Compile Include="Model\EntityManager.cs" />
     <Compile Include="Model\IGravitySource.cs" />
+    <Compile Include="Model\KineticProjectile.cs" />
     <Compile Include="Model\LaserProjectile.cs" />
     <Compile Include="Model\Player.cs" />
     <Compile Include="Model\Singularity.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\Vector2Helper.cs" />
     <Compile Include="View\AsteroidDrawer.cs" />
     <Compile Include="View\EntityDrawerManager.cs" />
     <Compile Include="View\IEntityDrawer.cs" />
+    <Compile Include="View\KineticProjectileDrawer.cs" />
     <Compile Include="View\LaserProjectileDrawer.cs" />
     <Compile Include="View\PlayerDrawer.cs" />
     <Compile Include="View\Primitives.cs" />

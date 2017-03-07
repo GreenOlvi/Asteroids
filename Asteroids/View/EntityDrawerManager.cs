@@ -39,6 +39,7 @@ namespace Asteroids.View
                     _laserProjectileDrawer.Draw(spriteBatch, entity);
                     break;
                 case EntityType.Singularity:
+                case EntityType.KineticProjectile:
                     Primitives.PutPixel(spriteBatch, entity.Position);
                     break;
             }

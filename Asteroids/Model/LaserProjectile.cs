@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using Asteroids.Utils;
 
 namespace Asteroids.Model
 {
@@ -24,9 +25,7 @@ namespace Asteroids.Model
         {
             Position = position;
             Angle = angle;
-            Velocity = new Vector2(
-                Convert.ToSingle(Math.Sin(Angle) * VELOCITY),
-                Convert.ToSingle(-Math.Cos(Angle) * VELOCITY));
+            Velocity = Vector2Helper.VectorAtAngle(Angle, VELOCITY);
         }
 
         public void Update(GameTime gameTime)
