@@ -20,6 +20,8 @@ namespace Asteroids
         public int ScreenHeight { get; private set; }
         public Rectangle Screen { get; private set; }
 
+        public bool Pause { get; private set; }
+
         private readonly InputManager _inputManager = InputManager.Instance;
         private readonly EntityManager _entityManager = new EntityManager();
         private readonly EntityDrawerManager _entityDrawerManager;
@@ -47,6 +49,8 @@ namespace Asteroids
 
             _entityDrawerManager = new EntityDrawerManager(new PlayerDrawer(), new AsteroidDrawer(), new LaserProjectileDrawer());
             Gravity = new CompoundGravity();
+
+            Pause = false;
         }
 
         private void NewGame()
@@ -56,10 +60,10 @@ namespace Asteroids
             _player = new Player(new Vector2(ScreenWidth / 2, ScreenHeight / 2));
             AddEntity(_player);
 
-            var asteroid = Asteroid.GenerateRandom(new Vector2((ScreenWidth/2) + 200, ScreenHeight/2));
+            var asteroid = Asteroid.GenerateRandom(new Vector2((ScreenWidth/2) + 200, ScreenHeight/2 + 100));
             _entityManager.Add(asteroid);
 
-            var singularity = new Singularity(asteroid.Position, 1000);
+            var singularity = new Singularity(asteroid.Position, 500);
             AddEntity(singularity);
             Gravity.AddSource(singularity);
         }
@@ -116,14 +120,20 @@ namespace Asteroids
             if (_inputManager.KeyPressed(Keys.Escape))
                 Exit();
 
-            if (_inputManager.KeyPressed(Keys.Enter) ||
-                _inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Start))
-                NewGame();
+            if (_inputManager.KeyPressed(Keys.P) || _inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Back))
+                Pause = !Pause;
 
-            if (_inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Y))
-                DebugOutput = !DebugOutput;
+            if (!Pause)
+            {
+                if (_inputManager.KeyPressed(Keys.Enter) ||
+                    _inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Start))
+                    NewGame();
 
-            _entityManager.Update(gameTime);
+                if (_inputManager.GamePadButtonPressed(PlayerIndex.One, Buttons.Y))
+                    DebugOutput = !DebugOutput;
+
+                _entityManager.Update(gameTime);
+            }
 
             base.Update(gameTime);
         }
@@ -140,6 +150,11 @@ namespace Asteroids
 
             _entityDrawerManager.DrawEntities(_spriteBatch, _entityManager.Entities);
             PrintDebug(_spriteBatch);
+
+            if (Pause && gameTime.TotalGameTime.Milliseconds > 500)
+            {
+                _spriteBatch.DrawString(_font, "PAUSE", new Vector2(ScreenWidth/2-40, 100), Color.White);
+            }
 
             _spriteBatch.End();
 
