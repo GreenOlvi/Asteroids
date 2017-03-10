@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Asteroids.Utils;
 
 namespace Asteroids.Model
 {
@@ -13,7 +15,13 @@ namespace Asteroids.Model
 
         public Vector2 Position { get; private set; }
         public Vector2 Velocity { get; private set; }
+        public Vector2 Acceleration { get; private set; }
         public bool Destroyed { get; private set; }
+
+        private List<Vector2> Points = new List<Vector2>
+        {
+            new Vector2()
+        }; 
 
         private float _angle = 0.0f;
         public float Angle {
@@ -56,37 +64,20 @@ namespace Asteroids.Model
         {
             InputUpdate();
 
-            var acceleration = Vector2.Zero;
+            Acceleration = Vector2.Zero;
 
             if (IsAccelerating)
             {
-                acceleration += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
+                Acceleration += new Vector2(Convert.ToSingle(Math.Sin(Angle) * ACCELERATION), Convert.ToSingle(-Math.Cos(Angle) * ACCELERATION));
             }
 
-            acceleration += AsteroidsGame.Instance.Gravity.ApplyGravity(this);
+            Acceleration += AsteroidsGame.Instance.Gravity.ApplyGravity(this);
 
-            Velocity += acceleration;
+            Velocity += Acceleration;
 
-            Position = Vector2.Add(Position, Velocity);
-
-            var screenWidth = AsteroidsGame.Instance.ScreenWidth;
-            var screenHeight = AsteroidsGame.Instance.ScreenHeight;
-            var x = Position.X;
-            var y = Position.Y;
-
-            if (x < 0)
-                x += screenWidth;
-
-            if (x > screenWidth)
-                x %= screenWidth;
-
-            if (y < 0)
-                y += screenHeight;
-
-            if (y > screenHeight)
-                y %= screenHeight;
-
-            Position = new Vector2(x, y);
+            Position = Vector2Helper.WrapInside(
+                Vector2.Add(Position, Velocity),
+                AsteroidsGame.Instance.Screen);
         }
 
         private void InputUpdate()
