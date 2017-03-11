@@ -17,9 +17,24 @@ namespace Asteroids.View
             return p;
         });
 
+        private static void DrawPixel(SpriteBatch spriteBatch, Vector2 position, Color color, float rotation, Vector2 scale)
+        {
+            spriteBatch.Draw(Pixel.Value, position, null, color, rotation, Vector2.Zero, scale, SpriteEffects.None, 0);
+        }
+
+        private static void DrawPixel(SpriteBatch spriteBatch, Vector2 position, float rotation, Vector2 scale)
+        {
+            DrawPixel(spriteBatch, position, Color.White, rotation, scale);
+        }
+
         public static void PutPixel(SpriteBatch spriteBatch, Vector2 position)
         {
-            spriteBatch.Draw(Pixel.Value, position, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0);
+            DrawPixel(spriteBatch, position, 0, Vector2.One);
+        }
+
+        public static void PutPixel(SpriteBatch spriteBatch, Vector2 position, Color color)
+        {
+            DrawPixel(spriteBatch, position, color, 0, Vector2.One);
         }
 
         public static void DrawLine(SpriteBatch spriteBatch, Vector2 start, Vector2 end)
@@ -33,7 +48,7 @@ namespace Asteroids.View
 
         public static void DrawLine(SpriteBatch spriteBatch, Vector2 position, float length, float angle)
         {
-            spriteBatch.Draw(Pixel.Value, position, null, Color.White, angle, Vector2.Zero, new Vector2(length, 1), SpriteEffects.None, 0);
+            DrawPixel(spriteBatch, position, angle, new Vector2(length, 1));
         }
 
         public static void DrawArrow(SpriteBatch spriteBatch, Vector2 start, Vector2 end)
@@ -42,7 +57,7 @@ namespace Asteroids.View
             var dy = start.Y - end.Y;
             var angle = (float) Math.Atan2(dy, dx);
             var length = Vector2.Distance(start, end);
-            var ang = (float)Math.PI/6;
+            const float ang = (float)Math.PI/6;
             DrawLine(spriteBatch, start, end);
             DrawLine(spriteBatch, end, length * 0.3f, angle - ang);
             DrawLine(spriteBatch, end, length * 0.3f, angle + ang);
@@ -56,18 +71,25 @@ namespace Asteroids.View
             DrawLine(spriteBatch, new Vector2(end.X, start.Y), start);
         }
 
-        public static void DrawPolygon(SpriteBatch spriteBatch, List<Vector2> points)
+        public static void DrawRectangle(SpriteBatch spriteBatch, Rectangle rectangle)
         {
-            if (points.Count > 0)
+            DrawRectangle(spriteBatch, new Vector2(rectangle.Left, rectangle.Top), new Vector2(rectangle.Right, rectangle.Bottom));
+        }
+
+        public static void DrawPolygon(SpriteBatch spriteBatch, IEnumerable<Vector2> points)
+        {
+            var pointsArray = points as Vector2[] ?? points.ToArray();
+
+            if (!pointsArray.Any())
+                return;
+
+            for (var i = 0; i < pointsArray.Length - 1; i++)
             {
-                for (var i = 0; i < points.Count - 1; i++)
-                {
-                    var p1 = points[i];
-                    var p2 = points[i + 1];
-                    DrawLine(spriteBatch, p1, p2);
-                }
-                DrawLine(spriteBatch, points[0], points.Last());
+                var p1 = pointsArray[i];
+                var p2 = pointsArray[i + 1];
+                DrawLine(spriteBatch, p1, p2);
             }
+            DrawLine(spriteBatch, pointsArray[0], pointsArray.Last());
         }
     }
 }
